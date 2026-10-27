@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <servlet>
+        <servlet-name>RegisterAdminServlet</servlet-name>
+        <servlet-class>RegisterAdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterAdminServlet</servlet-name>
+        <url-pattern>/registerAdmin</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RegisterAdminServlet</servlet-name>
+        <url-pattern>/adminRegister</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViewAdminsServlet</servlet-name>
+        <servlet-class>ViewAdminsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViewAdminsServlet</servlet-name>
+        <url-pattern>/adminList</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UpdateAdminServlet</servlet-name>
+        <servlet-class>UpdateAdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateAdminServlet</servlet-name>
+        <url-pattern>/updateAdmin</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DeleteAdminServlet</servlet-name>
+        <servlet-class>DeleteAdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DeleteAdminServlet</servlet-name>
+        <url-pattern>/deleteAdmin</url-pattern>
+    </servlet-mapping>
+
+</web-app>

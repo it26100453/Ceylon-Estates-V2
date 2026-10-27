@@ -1,0 +1,2 @@
+A001|jchandrasiri|admin123|jchandrasiri@realestateportal.com|SuperAdmin|approveListing,manageUsers,manageAdmins|2026-09-10
+A002|nperera|admin456|nperera@realestateportal.com|Admin|approveListing|Never
