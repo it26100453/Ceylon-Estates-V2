@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>App Settings</title>
+</head>
+<body>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="container" style="max-width: 760px; margin-top: 50px; margin-bottom: 50px;">
+        <h1 class="mb-4" th:text="#{settings.title}">App Settings</h1>
+
+        <div class="setting-row">
+            <div>
+                <div class="setting-label" th:text="#{settings.theme}">Theme</div>
+                <div class="setting-hint" th:text="#{settings.themeHint}">Choose how it looks</div>
+            </div>
+            <button id="theme-toggle" type="button" class="btn btn-accent">🌙 Dark mode</button>
+        </div>
+
+        <div class="setting-row">
+            <div>
+                <div class="setting-label" th:text="#{settings.language}">Language</div>
+                <div class="setting-hint" th:text="#{settings.languageHint}">Choose your language</div>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn" th:classappend="${#locale.language == 'en'} ? 'btn-accent' : 'btn-outline-secondary'" onclick="window.location.href = window.location.pathname + '?lang=en'">English</button>
+                <button type="button" class="btn" th:classappend="${#locale.language == 'si'} ? 'btn-accent' : 'btn-outline-secondary'" onclick="window.location.href = window.location.pathname + '?lang=si'">සිංහල</button>
+            </div>
+        </div>
+
+        <!-- Two-factor authentication: on/off button. Everything below only exists while it is ON. -->
+        <div sec:authorize="isAuthenticated()" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+             class="setting-row d-block twofa-card">
+
+            <div class="alert alert-success" th:if="${twoFaMessage}" th:text="#{${twoFaMessage}}">Updated.</div>
+            <div class="alert alert-danger" th:if="${twoFaError}" th:text="#{${twoFaError}}">Error.</div>
+
+            <div class="d-flex justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="setting-label fs-5" th:text="#{settings.twoFa}">Two-factor authentication</div>
+                    <div class="setting-hint" th:text="#{settings.twoFaHint}">Extra verification step at login</div>
+                </div>
+                <form id="twoFaToggleForm" th:action="@{/settings/2fa}" method="post" class="mb-0 d-flex align-items-center gap-2">
+                    <input type="hidden" name="twoFaEnabled" value="on"
+                           th:unless="${currentUser != null and currentUser.twoFaEnabled}">
+                    <button type="submit" class="btn btn-accent btn-sm"
+                            th:text="${currentUser != null and currentUser.twoFaEnabled} ? #{settings.turnOff} : #{settings.turnOn}">Turn on</button>
+                </form>
+            </div>
+
+            <!-- ON: email address + backup codes -->
+            <div th:if="${currentUser != null and currentUser.twoFaEnabled}" class="twofa-details mt-4">
+
+                <form th:action="@{/settings/2fa/email}" method="post" class="mb-4">
+                    <label class="form-label small" for="twoFaEmail" th:text="#{settings.twoFaEmail}">2FA code email</label>
+                    <div class="input-group">
+                        <input type="email" id="twoFaEmail" name="twoFaEmail" class="form-control"
+                               th:value="${currentUser.twoFaEmail}" th:placeholder="${currentUser.email}">
+                        <button type="submit" class="btn btn-accent" th:text="#{settings.save}">Save</button>
+                    </div>
+                    <div class="form-text" th:text="#{settings.twoFaEmailHint}">Leave blank to use your main account email.</div>
+                </form>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                    <div>
+                        <div class="setting-label" th:text="#{settings.backupCodes}">Backup codes</div>
+                        <div class="setting-hint" th:text="#{settings.backupCodesHint}">Use one if the email code does not arrive</div>
+                        <div class="small mt-1" th:if="${backupCodesLeft != null}"
+                             th:text="#{settings.backupLeft(${backupCodesLeft}, ${backupCodesTotal})}">8 of 8 left</div>
+                    </div>
+                    <form th:action="@{/settings/2fa/backup-codes}" method="post"
+                          onsubmit="return confirm('This replaces your existing backup codes. Continue?');">
+                        <button type="submit" class="btn btn-accent" th:text="#{settings.generateNew}">Generate new codes</button>
+                    </form>
+                </div>
+
+                <!-- Shown once, right after they were made -->
+                <div th:if="${newBackupCodes}" class="alert alert-warning mt-3 mb-0" id="backupCodesBox"
+                     th:attr="data-user=${currentUser.username}">
+                    <p class="fw-bold" th:text="#{settings.backupCodesGenerated}">Save these codes now - you won't see them again:</p>
+                    <div class="row row-cols-2 g-1 font-monospace mb-3">
+                        <div th:each="c : ${newBackupCodes}" class="backup-code" th:text="${c}"></div>
+                    </div>
+                    <button type="button" class="btn btn-accent btn-sm" id="downloadCodesBtn">
+                        <i class="bi bi-download"></i> <span th:text="#{settings.downloadCodes}">Download as .txt</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <p class="mt-4"><a th:href="@{/}" th:text="#{settings.backHome}">Back to home</a></p>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+    <script th:src="@{/js/two-factor.js}"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Register</title>
+</head>
+<body>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <div class="auth-page">
+        <div class="auth-card">
+
+            <img class="auth-logo" th:src="@{/images/logo-icon-v3.png}" alt="Ceylon Estates">
+            <h1 class="auth-title" th:text="#{register.title}">Create an account</h1>
+            <p class="auth-subtitle" th:text="#{register.subtitle}">Sign up to get started</p>
+
+            <form th:action="@{/register}" th:object="${user}" method="post" novalidate>
+
+                <div class="auth-field">
+                    <i class="bi bi-person"></i>
+                    <div class="auth-field-content">
+                        <div class="auth-field-label" th:text="#{register.username}">Username</div>
+                        <input type="text" th:field="*{username}" placeholder="Choose a username">
+                    </div>
+                </div>
+                <div class="text-danger small mb-2" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+
+                <div class="auth-field">
+                    <i class="bi bi-envelope"></i>
+                    <div class="auth-field-content">
+                        <div class="auth-field-label" th:text="#{register.email}">Email</div>
+                        <input type="email" th:field="*{email}" placeholder="you@example.com">
+                    </div>
+                </div>
+                <div class="text-danger small mb-2" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+
+                <div class="auth-field">
+                    <i class="bi bi-envelope-check"></i>
+                    <div class="auth-field-content">
+                        <div class="auth-field-label"><span th:text="#{register.backupEmail}">Backup email</span> <span th:text="#{register.optional}">(optional)</span></div>
+                        <input type="email" th:field="*{backupEmail}" placeholder="Optional backup email">
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <i class="bi bi-telephone"></i>
+                    <div class="auth-field-content">
+                        <div class="auth-field-label"><span th:text="#{register.phone}">Phone number</span> <span th:text="#{register.optional}">(optional)</span></div>
+                        <input type="tel" th:field="*{phoneNumber}" placeholder="Optional phone number">
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <i class="bi bi-lock"></i>
+                    <div class="auth-field-content">
+                        <div class="auth-field-label" th:text="#{register.password}">Password</div>
+                        <input type="password" id="password" th:field="*{password}" placeholder="Create a password">
+                    </div>
+                    <button type="button" class="toggle-password" data-target="password"><i class="bi bi-eye"></i></button>
+                </div>
+                <div id="password-strength-hint" class="small mb-2" style="color: rgba(255,255,255,0.45);" th:text="#{register.strengthHint}"></div>
+                <div class="text-danger small mb-2" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+
+                <div class="auth-field">
+                    <i class="bi bi-lock-fill"></i>
+                    <div class="auth-field-content">
+                        <div class="auth-field-label" th:text="#{register.confirmPassword}">Confirm password</div>
+                        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Re-enter your password">
+                    </div>
+                    <button type="button" class="toggle-password" data-target="confirmPassword"><i class="bi bi-eye"></i></button>
+                </div>
+                <div id="password-match-hint" class="small mb-3"></div>
+                <div class="text-danger small mb-2" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+
+                <button type="submit" class="btn-auth-submit" th:text="#{register.submit}">
+                    Sign Up <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="auth-divider" th:text="#{login.orContinue}">or continue with</div>
+
+            <a th:href="@{/oauth2/authorization/google}" class="btn-provider">
+                <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.08-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.83.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.95 10.7c-.18-.54-.28-1.11-.28-1.7s.1-1.16.28-1.7V4.97H.96A8.996 8.996 0 000 9c0 1.45.35 2.83.96 4.03l2.99-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.97l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+                <span th:text="#{login.googleSignIn}">Continue with Google</span>
+                <i class="bi bi-arrow-right ms-auto"></i>
+            </a>
+
+            <div class="auth-footer">
+                <span th:text="#{register.haveAccount}">Already have an account?</span>
+                <a th:href="@{/login}" th:text="#{register.login}">Log in</a>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
