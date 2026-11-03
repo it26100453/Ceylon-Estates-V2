@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Broker</title>
+</head>
+<body>
+<header th:replace="~{fragments/layout :: pageHero(${editing} ? #{brokerForm.editTitle} : #{brokerForm.newTitle}, null)}"></header>
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+
+<main class="container-xl page-main" style="max-width: 760px;">
+    <div th:replace="~{admin/fragments :: tabs('brokers')}"></div>
+    <form th:action="${editing} ? @{/admin/brokers/{id}(id=${broker.id})} : @{/admin/brokers}" th:object="${broker}" method="post" enctype="multipart/form-data" novalidate>
+        <section class="form-section">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="name" th:text="#{brokerForm.name}">Name</label>
+                    <input class="form-control" id="name" th:field="*{name}" th:errorclass="is-invalid">
+                    <div class="invalid-feedback" th:errors="*{name}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="company" th:text="#{brokerForm.company}">Company</label>
+                    <input class="form-control" id="company" th:field="*{company}" th:errorclass="is-invalid">
+                    <div class="invalid-feedback" th:errors="*{company}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="email" th:text="#{brokerForm.email}">Email</label>
+                    <input class="form-control" id="email" type="email" th:field="*{email}" th:errorclass="is-invalid">
+                    <div class="invalid-feedback" th:errors="*{email}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="phone" th:text="#{brokerForm.phone}">Phone</label>
+                    <input class="form-control" id="phone" th:field="*{phone}" th:errorclass="is-invalid">
+                    <div class="invalid-feedback" th:errors="*{phone}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="licenseNumber" th:text="#{brokerForm.license}">Licence number</label>
+                    <input class="form-control" id="licenseNumber" th:field="*{licenseNumber}" th:errorclass="is-invalid">
+                    <div class="invalid-feedback" th:errors="*{licenseNumber}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="district" th:text="#{brokerForm.district}">District</label>
+                    <select class="form-select" id="district" th:field="*{district}" th:errorclass="is-invalid">
+                        <option value="" th:text="#{sell.choose}">Choose...</option>
+                        <option th:each="d : ${districts}" th:value="${d.name()}" th:text="${d.label}">Colombo</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{district}"></div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="photo" th:text="#{brokerForm.photo}">Photo</label>
+                    <div class="d-flex align-items-center gap-3" th:if="${editing and broker.photoUrl != null}">
+                        <img th:src="@{${broker.photoUrl}}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:50%;">
+                        <!-- belongs to the separate form below, so it deletes the photo straight away without saving the rest -->
+                        <button type="submit" form="deletePhotoForm" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i> <span th:text="#{brokerForm.deletePhoto}">Delete photo</span>
+                        </button>
+                    </div>
+                    <input class="form-control mt-2" type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp">
+                    <div class="form-text" th:text="#{brokerForm.photoHelp}">JPEG, PNG or WEBP, up to 2 MB.</div>
+                    <div class="text-danger small" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="bio" th:text="#{brokerForm.bio}">Bio</label>
+                    <textarea class="form-control" id="bio" rows="4" th:field="*{bio}" th:errorclass="is-invalid"></textarea>
+                    <div class="invalid-feedback" th:errors="*{bio}"></div>
+                </div>
+            </div>
+        </section>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-teal px-4" th:text="#{common.save}">Save</button>
+            <a th:href="@{/admin/brokers}" class="btn btn-outline-secondary" th:text="#{common.cancel}">Cancel</a>
+        </div>
+    </form>
+
+    <!-- Used by the "Delete photo" button above (a form can't sit inside another form) -->
+    <form id="deletePhotoForm" th:if="${editing}" th:action="@{/admin/brokers/{id}/photo/delete(id=${broker.id})}" method="post"
+          th:attr="onsubmit='return confirm(\'' + #{brokerForm.confirmDeletePhoto} + '\');'"></form>
+
+    <!-- Crop / resize dialog for the broker photo -->
+    <div class="modal fade" id="photoCropModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{profile.cropTitle}">Adjust your photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <canvas id="photoCropCanvas" width="300" height="300"
+                            style="width: 300px; max-width: 100%; border-radius: 50%; cursor: grab; touch-action: none; background: #ddd;"></canvas>
+                    <div class="small text-muted mt-2" th:text="#{profile.cropHint}">Drag to move, use the slider to zoom.</div>
+                    <input type="range" id="photoCropZoom" class="form-range mt-2" min="1" max="3" step="0.01" value="1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" th:text="#{profile.cropCancel}">Cancel</button>
+                    <button type="button" class="btn btn-accent" id="photoCropSave" th:text="#{profile.cropSave}">Save photo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:src="@{/js/broker-photo-crop.js}"></script>
+</body>
+</html>
